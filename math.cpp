@@ -206,17 +206,17 @@ double Matrix<N>::mod(){
 	for(int i=0;i<N;i++){
 		Matrix<N-1> tmp = slice(0,i);
 
-		printf("%2f * (",val[0][i]);
+		//printf("%2f * (",val[0][i]);
 		if(i%2) r -= val[0][i]*tmp.mod();
 		else r += val[0][i]*tmp.mod();
-		printf(") ");
+		//printf(") ");
 		
 	}
 	return r;
 }
 template <>
 double Matrix<1>::mod(){
-	printf("%2f",val[0][0]);
+	// printf("%2f",val[0][0]);
 	return val[0][0];
 }
 
@@ -232,7 +232,7 @@ int main(){
 	v[1][2] = 6;
 	v[2][0] = 7;
 	v[2][1] = 8;
-	v[2][2] = 9;
+	v[2][2] = 8;
 	
 	Matrix<3> r = Matrix<3>(v);
 
