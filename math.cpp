@@ -26,7 +26,6 @@ Matrix<N,M>::Matrix(Vector v, int i, int j){
 			if(n >= 4+i){
 				val[i+3][0] = 1;
 			}
-			printf("ASD %f %f %f %f %f %f %d",v.x,v.y,v.z,val[i+0][0],val[i+1][0],val[i+2][0],i);
 		}
 	}else{
 		if(m >= 3+j){
@@ -48,10 +47,9 @@ Matrix<N,M>::Matrix(Vector v){
 
 Vector Vector::transform(Matrix<3,3> M){
 	Matrix <3,1> r = (*this);
-	printf("A %f", r.val[0][0]);
-	r.print();
-	M.print();
+	
 	r = M*r;
+
 	return r;
 }
 
@@ -78,11 +76,16 @@ Vector Vector::cross(Vector v){
 	m.val[1][2] = v.x;
 	m.val[2][0] = v.y;
 	m.val[2][1] = -v.x;
-	return v*m;
+
+	Matrix <3,1> n = (*this);
+	
+	return (*this)*m;
 }
 
 Vector Vector::operator*(Vector v){
 	return cross(v);
 }
+
+#include "color.cpp"
 
 #endif

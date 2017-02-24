@@ -45,10 +45,10 @@ int main(){
 	v2.print();
 	cout<<endl;
 
-	cout<<endl;
+	cout<<endl<<endl;
 	(v1*v2).print();
 	cout<<endl;
-	//(v2*v1).print();
+	(v2*v1).print();
 	cout<<endl;
 	
 	return 0;
