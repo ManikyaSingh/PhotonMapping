@@ -1,4 +1,5 @@
 #include "math.cpp"
+#include "graphics.cpp"
 #include <math.h>
 #include <iostream>
 using namespace std;
@@ -49,6 +50,33 @@ int main(){
 	(v1*v2).print();
 	cout<<endl;
 	(v2*v1).print();
+	cout<<endl<<endl<<endl;
+
+	Vector i = Vector(1,1,0);
+	Vector n = Vector(0,0,1);
+	Vector r2 = i.reflect(n);
+
+	i.print();
+	cout<<endl;
+	n.print();
+	cout<<endl;
+	r2.print();
+	cout<<endl<<endl;
+
+	i = Vector(1,1,0);
+	n = Vector(0,-1,0);
+	Vector rb = i/n;
+	r2 = i.reflect(n);
+
+	i.print();
+	cout<<endl;
+	n.print();
+	cout<<endl;
+	rb.print();
+	cout<<endl;
+	(rb*2).print();
+	cout<<endl;
+	r2.print();
 	cout<<endl;
 	
 	return 0;

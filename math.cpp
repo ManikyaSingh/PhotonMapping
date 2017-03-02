@@ -1,6 +1,55 @@
 #ifndef _MATH_SIMPLE_INCLUDED_
 #define _MATH_SIMPLE_INCLUDED_
 
+#include <iostream>
+using namespace std;
+#include <math.h>
+
+
+double EPS = ldexp (0.5 , -40);
+
+int compare(double a, double b) {
+	double c = a-b;
+	double d = c;
+	if(c<0) c *= -1;
+	
+	double param, result;
+	int n;
+
+	if(c < EPS && c > -EPS){
+		return 0;
+	}else if(d<0){
+		return -1;
+	}else if(d>0){
+		return 1;
+	}
+
+	return 0;
+}
+
+
+int roots(double a, double b, double c, double *r1, double *r2){
+	if(compare(a,0) == 0){
+		if(compare(b,0) == 0) return 0;
+		*r1 = -c/b;
+		return 1;
+	}
+	double d = b*b - 4*a*c;
+	int x = compare(d,0);
+	if(x<0) return 0;
+	if(x == 0){
+		a *= 2;
+		b /= a;
+		*r1 = *r2 = -b;
+		return 1;
+	}
+	d = sqrt(d);
+	a *= 2;
+	*r1 = -(b + d)/a;
+	*r2 = -(b - d)/a;
+	return 2;
+}
+
 class Vector;
 
 template <int N, int M>
@@ -45,6 +94,7 @@ Matrix<N,M>::Matrix(Vector v){
 	if(N == 4) val[3][0] = 1;
 }
 
+
 Vector Vector::transform(Matrix<3,3> M){
 	Matrix <3,1> r = (*this);
 	
@@ -69,13 +119,7 @@ Vector Vector::operator*(Matrix<4,4> M){
 }
 
 Vector Vector::cross(Vector v){
-	Matrix <3,3> m = 0.0;
-	m.val[0][1] = v.z;
-	m.val[0][2] = -v.y;
-	m.val[1][0] = -v.z;
-	m.val[1][2] = v.x;
-	m.val[2][0] = v.y;
-	m.val[2][1] = -v.x;
+	Matrix <3,3> m = Matrix<3,3>::cross(v.x,v.y,v.z);
 
 	Matrix <3,1> n = (*this);
 	
@@ -86,6 +130,5 @@ Vector Vector::operator*(Vector v){
 	return cross(v);
 }
 
-#include "color.cpp"
 
 #endif

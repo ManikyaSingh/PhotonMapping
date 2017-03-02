@@ -2,10 +2,11 @@
 #define _COLOR_SIMPLE_INCLUDED_
 
 class Color{
+public:
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
-	char a;
+	char a = -1;
 };
 
 #endif

@@ -1,53 +1,6 @@
 #ifndef _MATRIX_SIMPLE_INCLUDED_
 #define _MATRIX_SIMPLE_INCLUDED_
 
-#include <math.h>
-#include <iostream>
-using namespace std;
-
-double EPS = ldexp (0.5 , -40);
-
-int compare(double a, double b) {
-	double c = a-b;
-	double d = c;
-	if(c<0) c *= -1;
-	
-	double param, result;
-	int n;
-
-	if(c < EPS && c > -EPS){
-		return 0;
-	}else if(d<0){
-		return -1;
-	}else if(d>0){
-		return 1;
-	}
-
-	return 0;
-}
-
-
-int roots(double a, double b, double c, double *r1, double *r2){
-	if(compare(a,0) == 0){
-		if(compare(b,0) == 0) return 0;
-		*r1 = -c/b;
-		return 1;
-	}
-	double d = b*b - 4*a*c;
-	int x = compare(d,0);
-	if(x<0) return 0;
-	if(x == 0){
-		a *= 2;
-		b /= a;
-		*r1 = *r2 = -b;
-		return 1;
-	}
-	d = sqrt(d);
-	a *= 2;
-	*r1 = -(b + d)/a;
-	*r2 = -(b - d)/a;
-	return 2;
-}
 
 template <int N, int M>
 class Matrix{
@@ -219,6 +172,17 @@ public:
 			}
 		}
 		cout<<endl;
+	}
+
+	static Matrix cross(double x, double y, double z){
+		Matrix <3,3> m = 0.0;
+		m.val[0][1] = z;
+		m.val[0][2] = -y;
+		m.val[1][0] = -z;
+		m.val[1][2] = x;
+		m.val[2][0] = y;
+		m.val[2][1] = -x;
+		return m;
 	}
 };
 

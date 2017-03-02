@@ -1,10 +1,6 @@
 #ifndef _VECTOR_SIMPLE_INCLUDED_
 #define _VECTOR_SIMPLE_INCLUDED_
 
-#include <iostream>
-using namespace std;
-#include <math.h>
-
 class Vector{
 public:
 	double x;
@@ -45,9 +41,11 @@ public:
 	Vector operator*(double d){
 		return Vector(x*d,y*d,z*d);
 	}
+	
 	Vector operator/(double d){
 		return Vector(x/d,y/d,z/d);
 	}
+
 	double dot(Vector v){
 		return (x*v.x + y*v.y + z*v.z);
 	}
@@ -62,6 +60,18 @@ public:
 	}
 	Vector unit(){
 		return (*this)/mod2();
+	}
+	Vector component(Vector dir){
+		double r = (*this)^dir;
+		if(r < 0) r = -r;
+		return (dir*r)/dir.mod();
+	}
+	Vector operator/(Vector v){
+		return (*this).component(v);
+	}
+	Vector reflect(Vector n){
+		n = ((*this)/n)*2;
+		return n + (*this);
 	}
 
 	Vector transform(Matrix<3,3> M);
