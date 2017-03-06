@@ -1,4 +1,5 @@
 #include <math.h>
+#include <time.h>
 #include <fstream>
 #include <iostream>
 using namespace std;
@@ -37,7 +38,7 @@ void bitmap(Color **c, int w, int h, string fileName)
 }
 
 int main(){
-	
+	srand (time(NULL));
 	double v[3][3];
 	v[0][0] = 1;
 	v[0][1] = 2;

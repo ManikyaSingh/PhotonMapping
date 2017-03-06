@@ -5,14 +5,24 @@ class Mesh{
 	//will be declared later
 };
 
+#define RAND(a,b) (a + (((double)rand())/(RAND_MAX))*b);
 
 class Light{
 	Light(){
 
 	}
 	Ray source;
-	double Area;
+	double Angle;
 	double power;
+	Vector generate(){
+		double a = RAND(0, Angle);
+		Vector v;
+		v.x = RAND(0,1);
+		v.y = RAND(0,1);
+		v.z = (Cos(a) * (d.mod2()))/(((source.d.x)*x)+((source.d.y)*y));
+		if(v^d < 0) v = -v;
+		return v;
+	}
 };
 
 typedef Point (*SurfaceFn)(Ray r, int mode, void *args);
@@ -133,7 +143,18 @@ public:
 		return ret;
 	}
 
-	int Illuminate(OTNode *root, Light *light){
+	int Illuminate(OTNode *root, Light *light, int lc){
+		if(root == NULL)
+			root = new OTNode();
+		root->p.v.x = 0;
+		root->p.v.y=0;
+		root->p.v.z=0;
+		root->p.p = 0;
+		root->lb = root->ub = root->p.v;
+		root->power = 0;
+		while(lc--){
+			//use light lc to generate random photon ray and find intersection then insert into OCTree
+		}
 		return 0;
 	}
 };
