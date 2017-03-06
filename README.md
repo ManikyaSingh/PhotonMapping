@@ -25,7 +25,7 @@
 	transform Matrix<3>
 	transform Matrix<4>
 //	rotate	//
-	/ Vector component
+	Vector component
 	reflect
 
 3. Color

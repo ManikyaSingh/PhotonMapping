@@ -8,6 +8,8 @@ using namespace std;
 #include "color.cpp"
 #include "point.cpp"
 #include "ray.cpp"
+#include "photon.cpp"
 #include "object.cpp"
+
 
 #endif

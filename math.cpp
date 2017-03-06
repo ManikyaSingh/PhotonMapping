@@ -31,6 +31,7 @@ int compare(double a, double b) {
 int roots(double a, double b, double c, double *r1, double *r2){
 	if(compare(a,0) == 0){
 		if(compare(b,0) == 0) return 0;
+		//printf("\neqn %fXX + %fX + %f = 0", a, b, c);
 		*r1 = -c/b;
 		return 1;
 	}

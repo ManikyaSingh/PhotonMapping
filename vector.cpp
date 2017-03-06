@@ -38,6 +38,9 @@ public:
 	Vector operator-(Vector v){
 		return Vector(x-v.x,y-v.y,z-v.z);
 	}
+	Vector operator-(){
+		return Vector(-x,-y,-z);
+	}
 	Vector operator*(double d){
 		return Vector(x*d,y*d,z*d);
 	}
@@ -84,9 +87,19 @@ public:
 	void print(){
 		cout<<x<<" "<<y<<" "<<z;
 	}
+
+	int operator==(Vector v){
+		return(v.x == x && v.y == y && v.z == z);
+	}
 };
 
+Vector operator*(double d, Vector v){
+	return v*d;
+}
 
+Vector operator/(double d, Vector v){
+	return v/d;
+}
 
 // Matrix <3,1> operator=(Matrix& <3,1> M, Vector v){
 // 	M.val[0][0] = v.x;
