@@ -122,9 +122,50 @@ int main(){
 	root.lb = root.ub = root.p.v;
 	root.power = 1;
 
+	int inp;
+	Photon tmpP;
+	cout<<"Insert? ";
+	cin>>inp;
+	while(inp){
+		cout<<"x = ";
+		cin>>tmpP.v.x;
+		cout<<"y = ";
+		cin>>tmpP.v.y;
+		cout<<"z = ";
+		cin>>tmpP.v.z;
+		tmpP.p = 1;
+		cout<<"\nINSERTING - ";
+		tmpP.v.print();
+		cout<<"\n";
+		root.insert(tmpP);
+		cin>>inp;
+	}
+
+	cout<<"\nINSERTIONS COMPLETE\n";
+
 	root.insert(Photon(0.9, 0.9, 0.9, 1));
 
 	root.print();
+
+	cout<<"Search? ";
+	cin>>inp;
+	Vector tmpV;
+	double tmpR;
+	while(inp){
+		cout<<"x = ";
+		cin>>tmpV.x;
+		cout<<"y = ";
+		cin>>tmpV.y;
+		cout<<"z = ";
+		cin>>tmpV.z;
+		cout<<"r = ";
+		cin>>tmpR;
+		cout<<"\nSEARCHING FOR - ";
+		tmpV.print();
+		cout<<"  |  "<<tmpR;
+		cout<<"\nFOUND "<<root.rangeCount(tmpV,tmpR)<<"\n";
+		cin>>inp;
+	}
 
 	cout<<root.rangeCount(Vector(0,0,0),1.0);
 
@@ -137,22 +178,22 @@ int main(){
 	o.sLen = 7;
 	o.oLen = 0;
 	
-	SphereParam sp = SphereParam(80-500,80-500,500-80,80*80);
+	SphereParam sp = SphereParam(-500+100,-500+80,500-80,80*80);
 
 	PlaneParam ppB = PlaneParam(0,0,1,500);
 
 	PlaneParam ppL = PlaneParam(-1,0,0,500);
-	ppL.c = Color(255,0,0,100);
+	ppL.c = Color(150,0,0,100);
 	PlaneParam ppR = PlaneParam(1,0,0,500);
-	ppR.c = Color(0,255,0,100);
+	ppR.c = Color(0,150,0,100);
 	PlaneParam ppU = PlaneParam(0,1,0,500);
 	PlaneParam ppD = PlaneParam(0,-1,0,500);
 	ppU.c = Color(217, 206, 178,100);
 	ppD.c = Color(217, 206, 178,100);
-	ppB.c = Color(255, 255, 255,100);
+	ppB.c = Color(217, 206, 178,100);
 
 	PlaneParam ppM = PlaneParam(-1,0,0,500);
-	ppM.c = Color(255,255,255,100);
+	ppM.c = Color(150,150,150,100);
 	ppM.lb = Vector(500,-500,300);
 	ppM.ub = Vector(500,-300,500);
 	
@@ -195,6 +236,41 @@ int main(){
 	o.surface[6].type = 1;
 
 
+	OTNode *rnode = new OTNode();
+	rnode->p.v.x = 0;
+	rnode->p.v.y = 0;
+	rnode->p.v.z = 0;
+	rnode->p.p = 0;
+	rnode->lb = rnode->p.v;
+	rnode->ub = rnode->p.v;
+	rnode->power = 0;
+
+	Light lights[1];
+	lights[0].angle = M_PI/2;
+	lights[0].power = 10000000;
+	lights[0].source = Ray(Point(Vector(0,450,250), Color(255,255,255,100)), Vector(0,0,-1));
+
+	Object::illuminate(rnode, lights, 1, 10000000);
+
+	cout<<"\n------------------------PHOTON MAP-------------------------\n";
+
+	//rnode->insert(Photon(0.9, 0.9, 0.9, 1));
+
+	//rnode->print();
+
+	//cout<<rnode->rangeCountLinear(Vector(0.1,0.1,0.1), 100.0);
+	cout<<"\n-------------------------------------------------\n";
+
+
+	Color **ddd  = NULL;
+
+	int ww , hh;
+	ww = hh = 500;
+
+	ddd = rnode->project(Vector(0,0,-1000), ww, hh);
+
+	
+	bitmap(ddd, (ww*2)+1, (hh*2) + 1, "map2.ppm");
 
 	
 	Ray rr = Ray(Point(Vector(0,0,-5), Color(0,0,0,100)), Vector(0,0,1));
@@ -224,13 +300,25 @@ int main(){
 
 	Color **ccc  = NULL;
 
-	int ww , hh;
-	ww = hh = 500;
+	// int ww , hh;
+	// ww = hh = 500;
 
 	ccc = o.render(Vector(0,0,-1000), ww, hh);
 
 	
-	bitmap(ccc, (ww*2)+1, (hh*2) + 1, "a.ppm");
+	bitmap(ccc, (ww*2)+1, (hh*2) + 1, "a2.ppm");
+
+	printf("\n\n\n----------------------------\n\n\n");
+
+	Color **eee  = NULL;
+
+	// int ww , hh;
+	// ww = hh = 500;
+
+	eee = Object::render(Vector(0,0,-1000), ww, hh, rnode, 10.0);
+
+	
+	bitmap(eee, (ww*2)+1, (hh*2) + 1, "a_i2.ppm");
 	
 	return 0;
 }

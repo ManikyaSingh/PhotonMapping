@@ -8,19 +8,35 @@ class Mesh{
 #define RAND(a,b) (a + (((double)rand())/(RAND_MAX))*b);
 
 class Light{
+public:
 	Light(){
 
 	}
 	Ray source;
-	double Angle;
+	double angle;
 	double power;
-	Vector generate(){
-		double a = RAND(0, Angle);
+	Vector generate(int i){
+		double a = RAND(-angle, 2*angle);
 		Vector v;
-		v.x = RAND(0,1);
-		v.y = RAND(0,1);
-		v.z = (Cos(a) * (d.mod2()))/(((source.d.x)*x)+((source.d.y)*y));
-		if(v^d < 0) v = -v;
+		do{
+			v.x = RAND(-10,20);
+			v.y = RAND(-10,20);
+			v.z = RAND(-10,20);
+			// v.print();
+			// cout<<" "<<v.mod()<<" "<<compare(v.mod(),0);
+
+			// printf(" a %d\n", i);
+		}while(compare(v.mod(),0) == 0 || v.mod() > 100 );
+		// if(compare(source.d.mod(), 0) == 0) return v;
+		// else{
+		// 	while( compare(v.mod(),0) == 0 || (v^(source.d)) < ( (v.mod2()) * ((source.d).mod2()) * (cos(angle)) )  ){
+		// 		v.x = RAND(-10,20);
+		// 		v.y = RAND(-10,20);
+		// 		v.z = RAND(-10,20);
+		// 	}
+		// }
+
+		// if((v^(source.d)) < 0) v = -v;
 		return v;
 	}
 };
@@ -114,23 +130,67 @@ public:
 		return ret;
 	}
 
-	Color** render(Vector vp, int w, int h, Light *light){
+	
+
+	static int illuminate(OTNode *root, Light *light, int lc, int pc){
+		if(rootObject == NULL) return 0;
+		if(root == NULL) return 0;
+		
+		int pcp;
+		Ray lr;
+		Point ip;
+		Photon ins;
+		Vector nrm;
+		double co;
+		while(lc--){
+			pcp = pc;
+			while(pcp--){
+				//use light lc to generate random photon ray and find intersection then insert into OCTree
+				lr.d = light[lc].generate(pcp);
+				// printf("\nRAY GEN ");
+				// lr.d.print();
+				// printf("\n");
+				lr.p = light[lc].source.p;
+				ip = rootObject->intersect(lr, &nrm);
+				co = (lr.d^nrm)/(lr.d.mod2() * nrm.mod2());
+				if(co < 0) co = - co;
+				root->insert(Photon(ip, (light[lc].power * co )/pc));
+			}
+			
+		}
+		return 1;
+	}
+
+	static Color** render(Vector vp, int w, int h, OTNode *root, double range){
 		/*
 		For every ray find min intersection point , point.color = pixel.color
 		*/
+
+
 		Color **ret = new Color*[2*h+1];
 		int i,j;
 		Ray r;
 		Point tmp;
+		int pc = 0;
+		int pcp;
+		Vector VR2 = Vector(range/2);
 		for(j=-h;j<=h;j++){
 			ret[j+h] = new Color[2*w+1];
 			for(i=-w;i<=w;i++){
 
 				r = Ray(Point(Vector(vp.x + i, vp.y + j, 0), Color(0,0,0,0)), Vector(i , j, -vp.z));
 
-				tmp = intersect(r, NULL);
+				tmp = rootObject->intersect(r, NULL);
+
+				double ip = root->rangeCount(tmp.v - VR2 , range);
+
+				//if(ip != 0) cout<<"\nPHOTONS - "<<ip<<"\n";
 
 
+				ip /= range;
+				ip /= range;
+
+				tmp.color = tmp.color * ip;
 
 				if(i == 0 && j == 0)
 					tmp.print();
@@ -138,24 +198,14 @@ public:
 				
 				ret[j+h][i+w] = tmp.color;
 			}
+			pcp = (((h+j)*100)/(2*h));
+			if(pcp != pc){pc = pcp;
+				cout<<endl<<pcp<<"% completed\n";
+			}
+			
 		}
 
 		return ret;
-	}
-
-	int Illuminate(OTNode *root, Light *light, int lc){
-		if(root == NULL)
-			root = new OTNode();
-		root->p.v.x = 0;
-		root->p.v.y=0;
-		root->p.v.z=0;
-		root->p.p = 0;
-		root->lb = root->ub = root->p.v;
-		root->power = 0;
-		while(lc--){
-			//use light lc to generate random photon ray and find intersection then insert into OCTree
-		}
-		return 0;
 	}
 };
 
