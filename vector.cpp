@@ -77,6 +77,28 @@ public:
 		return n + (*this);
 	}
 
+	Vector refract(Vector _n, double coeff){
+		//cout<<"\n#  ";_n.print();cout<<" #\n";
+		Vector i = unit();
+		Vector n = _n.unit();
+		double ci = i^n;
+		if(ci > 0)return refract(-_n, 1/coeff);
+		ci *= -1;
+		double si = sqrt(1 - (ci*ci));
+		double sr = si/coeff;
+		if(sr >= 1){
+			return reflect(_n);
+		}
+		Vector Il = -(i/n);
+		Vector Ip = i - Il;
+		Vector r = Il;
+		if(compare(Ip.mod(), 0) == 0) Ip = Vector(0,0,0);
+		else Ip = Ip.unit();
+		double tr = sr/sqrt(1 - (sr*sr));
+		Ip = Ip*(Il.mod2()*tr);
+		return (Il + Ip);
+	}
+
 	Vector transform(Matrix<3,3> M);
 	Vector transform(Matrix<4,4> M);
 	Vector operator*(Matrix<3,3> M);

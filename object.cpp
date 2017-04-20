@@ -52,6 +52,8 @@ public:
 	void *param;
 	char type=0;//default
 				//1 = reflect , perfectly
+				//2 = refract , perfectly
+	double coeff=1;
 	void *typeParam;
 	Surface(){
 		param = NULL;
@@ -64,8 +66,13 @@ class Object;
 
 Object* rootObject = NULL;
 
+
+
+
 class Object{
 public:
+
+	static int c;
 	Object *object;
 	Mesh *mesh;
 	Surface* surface;
@@ -141,9 +148,17 @@ public:
 		Point ip;
 		Photon ins;
 		Vector nrm;
+		Vector gen;
 		double co;
+		int done;
+		int d2;
+		double gg;
+		double poww;
 		while(lc--){
+			done = 0;
 			pcp = pc;
+			cout<<pcp<<" "<<pc;
+			
 			while(pcp--){
 				//use light lc to generate random photon ray and find intersection then insert into OCTree
 				lr.d = light[lc].generate(pcp);
@@ -152,9 +167,36 @@ public:
 				// printf("\n");
 				lr.p = light[lc].source.p;
 				ip = rootObject->intersect(lr, &nrm);
+				//cout<<pcp<<endl;
+
+				d2 = pc/100;
+				if(done%d2 == 0)cout<<(done/d2)<<endl;
+				done++;
+
 				co = (lr.d^nrm)/(lr.d.mod2() * nrm.mod2());
 				if(co < 0) co = - co;
-				root->insert(Photon(ip, (light[lc].power * co )/pc));
+				poww = light[lc].power/pc;
+				poww *= co;
+				root->insert(Photon(ip, (poww )));
+
+				gg = RAND(-2,3);
+				while(gg<0){
+					//cout<<"r";
+					do{
+						gen.x = RAND(-10,20);
+						gen.y = RAND(-10,20);
+						gen.z = RAND(-10,20);
+					}while(gen.mod() > 100 || compare(gen.mod(), 0) == 0 || (gen^nrm) < 0 );
+					lr.p = ip;
+					lr.d = gen;
+					ip = rootObject->intersect(lr, &nrm);
+					co = (lr.d^nrm)/(lr.d.mod2() * nrm.mod2());
+					if(co < 0) co = - co;
+					poww *= co;
+					root->insert(Photon(ip, poww));
+					gg = RAND(-2,3);
+				}
+
 			}
 			
 		}
@@ -209,7 +251,10 @@ public:
 	}
 };
 
+int Object::c(0);
+
 Point Object::intersect(Ray r, Vector *normal){
+	//cout<<"#"<<c<<endl;
 	int i;
 	Point p, min;
 	Ray tmp;
@@ -223,13 +268,13 @@ Point Object::intersect(Ray r, Vector *normal){
 
 		}else{
 			if(min.color.a == -1){
-				if(((p.v - r.p.v)^(r.d)) >= 0){
+				if(((p.v - r.p.v)^(r.d)) > 0){
 					min = p;
 					frm = 0;
 					ind = i;
 				}
 			}else{
-				if(((min.v - p.v)^(r.d)) >= 0){
+				if(((min.v - p.v)^(r.d)) > 0){
 					min = p;
 					frm = 0;
 					ind = i;
@@ -244,7 +289,7 @@ Point Object::intersect(Ray r, Vector *normal){
 
 		}else{
 			if(min.color.a == -1){
-				if(((p.v - r.p.v)^(r.d)) >= 0){
+				if(((p.v - r.p.v)^(r.d)) > 0){
 					min = p;
 					frm = 1;
 					ind = i;
@@ -252,7 +297,7 @@ Point Object::intersect(Ray r, Vector *normal){
 					// 	*normal = (*(surface[i].surfaceFn))(tmp, -1, NULL).v;
 				}
 			}else{
-				if(((min.v - p.v)^(r.d)) >= 0){
+				if(((min.v - p.v)^(r.d)) > 0){
 					min = p;
 					frm = 1;
 					ind = i;
@@ -269,13 +314,13 @@ Point Object::intersect(Ray r, Vector *normal){
 
 		}else{
 			if(min.color.a == -1){
-				if(((p.v - r.p.v)^(r.d)) >= 0){
+				if(((p.v - r.p.v)^(r.d)) > 0){
 					min = p;
 					frm = 2;
 					ind = i;
 				}
 			}else{
-				if(((min.v - p.v)^(r.d)) >= 0){
+				if(((min.v - p.v)^(r.d)) > 0){
 					min = p;
 					frm = 2;
 					ind = i;
@@ -284,14 +329,17 @@ Point Object::intersect(Ray r, Vector *normal){
 		}
 	}
 
-	
+	if(c>10){
+		min.color.a = -1;
+		c = 0;
+	}
 
 	if(min.color.a >= 0){
 		if(frm == 0){
 			tmp.p = min;
 			
 			tmp.p = (*(surface[ind].surfaceFn))(tmp, 1, surface[ind].param);
-			//tmp.p.print();
+
 
 			if(normal != NULL){ *normal = tmp.p.v; }
 
@@ -301,16 +349,22 @@ Point Object::intersect(Ray r, Vector *normal){
 				//min.print();
 				
 					//min.color.a = 100;
-					if(min.color.a < 0){
-						min.color.r = min.color.g=min.color.b = 50;
-						min.color.a = 100;
-					}else{
-						// min.color.r += 50;
-						// min.color.g += 50;
-						// min.color.b += 50;
-					}
+					c++;
+
 					
 				
+			}else if(surface[ind].type == 2 && rootObject != NULL && tmp.p.color.a >= 0){
+				//tmp.p.v.print();cout<<endl;
+				r.d = r.d.refract(tmp.p.v, surface[ind].coeff);
+				//min.v = min.v + (r.d*0.1);
+				r = Ray(min,r.d);
+				//r.d.print();cout<<endl;
+				min = rootObject->intersect(r, normal);
+				//min.print();
+				c++;
+					
+			}else{
+				c = 0;
 			}
 			
 				
@@ -350,18 +404,18 @@ Point Sphere(Ray r, int mode, void *args){
 		if(r == 0){
 			p.color.a = -1;
 		}else if(r == 1){
-			if(r1 > 0){
+			if(compare(r1,0) > 0){
 				p.v = v + r1*dir;
 			}else{
 				p.color.a = -1;
 			}
 		}else{
-			if(r1 > 0){
-				if(r2 > 0){
-					if(r1 > r2) r1 = r2;
+			if(compare(r1,0) > 0){
+				if(compare(r2,0) > 0){
+					if(compare(r1,r2) > 0) r1 = r2;
 				}
 			}else{
-				if(r2 > 0){
+				if(compare(r2,0) > 0){
 					r1 = r2;
 				}else{
 					p.color.a = -1;
@@ -372,7 +426,16 @@ Point Sphere(Ray r, int mode, void *args){
 			p.v.y += param->Y;
 			p.v.z += param->Z;
 		}
-	}else if(mode == 1 || mode == 2){
+	}else if(mode == 1){
+		// if(compare(rhs, v.mod()) == 0){
+			p.v = v;
+		// 	if(mode == 1){
+		// 		p.v = r.p.v;
+		// 	}
+		// }else{
+		// 	p.color.a = -1;
+		// }
+	}else if(mode == 2){
 		if(compare(rhs, v.mod()) == 0){
 			p.v = v;
 			if(mode == 1){
@@ -429,19 +492,19 @@ Point Plane(Ray r, int mode, void *args){
 		}
 		if(!(param->lb == param->ub)){
 			if(param->lb.x > param->ub.x){
-				if(p.v.x < param->lb.x && p.v.x > param->ub.x) p.color.a = -1;
+				if(!(p.v.x < param->ub.x || p.v.x > param->lb.x)) p.color.a = -1;
 			}else if(param->lb.x < param->ub.x){
 				if(p.v.x < param->lb.x || p.v.x > param->ub.x) p.color.a = -1;
 			}
 
 			if(param->lb.y > param->ub.y){
-				if(p.v.y < param->lb.y && p.v.y > param->ub.y) p.color.a = -1;
+				if(!(p.v.y < param->ub.y || p.v.y > param->lb.y)) p.color.a = -1;
 			}else if(param->lb.y < param->ub.y){
 				if(p.v.y < param->lb.y || p.v.y > param->ub.y) p.color.a = -1;
 			}
 
 			if(param->lb.z > param->ub.z){
-				if(p.v.z < param->lb.z && p.v.z > param->ub.z) p.color.a = -1;
+				if(!(p.v.z < param->ub.z || p.v.z > param->lb.z)) p.color.a = -1;
 			}else if(param->lb.z < param->ub.z){
 				if(p.v.z < param->lb.z || p.v.z > param->ub.z) p.color.a = -1;
 			}

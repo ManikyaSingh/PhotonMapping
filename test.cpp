@@ -178,7 +178,7 @@ int main(){
 	o.sLen = 7;
 	o.oLen = 0;
 	
-	SphereParam sp = SphereParam(-500+100,-500+80,500-80,80*80);
+	SphereParam sp = SphereParam(0,0,250,80*80);
 
 	PlaneParam ppB = PlaneParam(0,0,1,500);
 
@@ -186,16 +186,19 @@ int main(){
 	ppL.c = Color(150,0,0,100);
 	PlaneParam ppR = PlaneParam(1,0,0,500);
 	ppR.c = Color(0,150,0,100);
+	// ppR.lb = Vector(500, 100, 300);
+	// ppR.ub = Vector(500, -100, 200);
+
 	PlaneParam ppU = PlaneParam(0,1,0,500);
 	PlaneParam ppD = PlaneParam(0,-1,0,500);
-	ppU.c = Color(217, 206, 178,100);
-	ppD.c = Color(217, 206, 178,100);
-	ppB.c = Color(217, 206, 178,100);
+	ppU.c = Color(255, 255, 255,100);
+	ppD.c = Color(255, 255, 255,100);
+	ppB.c = Color(220, 220, 220,100);
 
-	PlaneParam ppM = PlaneParam(-1,0,0,500);
+	PlaneParam ppM = PlaneParam(-1,0,1,600);
 	ppM.c = Color(150,150,150,100);
-	ppM.lb = Vector(500,-500,300);
-	ppM.ub = Vector(500,-300,500);
+	ppM.lb = Vector(-500 , -500 , 100);
+	ppM.ub = Vector(-500 , -100 , 500);
 	
 
 	o.surface = new Surface[7];
@@ -203,6 +206,8 @@ int main(){
 	o.surface[0] = Surface();
 	o.surface[0].surfaceFn = &Sphere;
 	o.surface[0].param = (void*)&sp;
+	o.surface[0].type = 2;
+	o.surface[0].coeff = 2;
 
 	
 	o.surface[1] = Surface();
@@ -247,10 +252,10 @@ int main(){
 
 	Light lights[1];
 	lights[0].angle = M_PI/2;
-	lights[0].power = 10000000;
-	lights[0].source = Ray(Point(Vector(0,450,250), Color(255,255,255,100)), Vector(0,0,-1));
+	lights[0].power = 800000;
+	lights[0].source = Ray(Point(Vector(-40,0,250), Color(255,255,255,100)), Vector(0,0,0));
 
-	Object::illuminate(rnode, lights, 1, 10000000);
+	Object::illuminate(rnode, lights, 1, 100000);
 
 	cout<<"\n------------------------PHOTON MAP-------------------------\n";
 
@@ -315,7 +320,7 @@ int main(){
 	// int ww , hh;
 	// ww = hh = 500;
 
-	eee = Object::render(Vector(0,0,-1000), ww, hh, rnode, 10.0);
+	eee = Object::render(Vector(0,0,-1000), ww, hh, rnode, 60.0);
 
 	
 	bitmap(eee, (ww*2)+1, (hh*2) + 1, "a_i2.ppm");
